@@ -1,48 +1,46 @@
 import java.time.Duration;
+
+import browser.DriverManager;
+
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import reader.ConfigReader;
 
 public class Broswertest {
 
     private WebDriver driver;
+    private static final Logger logger = LoggerFactory.getLogger(Broswertest.class);
 
     @BeforeMethod
     public void setUp() {
-        String chromeBinaryPath = "\"C:\\Users\\shubh\\Downloads\\chrome-win64\\chrome-win64\\chrome.exe\"";
-        ChromeOptions chromeOptions = new ChromeOptions();
-        chromeOptions.setBinary(chromeBinaryPath);
-        driver = new ChromeDriver(chromeOptions);
-        driver.manage().window().maximize();
+        DriverManager.initDriver();
+        driver = DriverManager.getWebDriver();
     }
 
-    @Test
-    public void testSearch() {
-        driver.get("https://accelerator.escindia.in/");
-        WebElement searchInput = driver.findElement(By.xpath("//input[@id='looking_filterKL']"));
-        searchInput.clear();
-        searchInput.sendKeys("search");
-        
+    @Test(priority = 0)
+    public void verifyLandingPageLoading() {
+        driver.get(ConfigReader.getProperty("url"));
+        Assert.assertEquals(driver.getTitle(), "Best Software Testing Services|Test Automation Services - Thoughtcoders");
+        logger.info("Website Loading Successfully");
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
-        WebElement submitButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"hero\"]/div/div/div[1]/form/button")));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", submitButton);
-        submitButton.click();
+    }
+    @Test(priority = 1)
+    public void verifyQATools(){
+        driver.get(ConfigReader.getProperty("url"));
+        driver.findElement(By.xpath("//a[text()='QA Tools']")).click();
+        Assert.assertEquals(driver.getTitle(), "QA Tools Dashboard - Professional Testing Tools & Utilities | ThoughtCoders");
+        logger.info("Website QA Tools Successfully");
     }
 
     @AfterMethod
     public void tearDown() {
-    	driver.close();
-    	driver.quit();
-        
+    	DriverManager.quitDriver();
     }
 
 
